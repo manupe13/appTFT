@@ -13,16 +13,13 @@ export class FooterComponent {
 
   @HostListener("window:scroll", [])
   onWindowScroll() {
-    // Obtenemos la posición actual del scroll y la altura de la ventana
     const scrollPosition = window.pageYOffset;
     const windowHeight = window.innerHeight;
 
-    // Obtenemos la altura total de la página
     const body = document.body;
     const html = document.documentElement;
     const pageHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
 
-    // Verificamos si el usuario ha llegado al final de la página
     if (scrollPosition + windowHeight >= pageHeight) {
       if (!this.isFooterVisible) {
         const footer = document.getElementById('footer');
