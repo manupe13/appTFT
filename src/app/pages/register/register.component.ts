@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/interfaces/user';
 import { GlobalDataService } from 'src/app/services/global-data.service';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -101,12 +102,13 @@ export class RegisterComponent {
     this.usuario.password = this.user.password;
     this.usuario.existentes = [];
     this.usuario.consumidos = [];
-    this.usuario.rol = 'null';
+    this.usuario.rol = 'User';
     this.userService.register(this.user.email, this.user.password, this.usuario).then(() => {
       const userID = this.userService.getCurrentUserId();
       if(userID){
         this.usuario.id = userID;
         this.globalData.setLoggedUserId(userID);
+        this.updateUserRol(userID);
         this.userService.updateUser(userID, { id: userID }).then(() => {
           this.router.navigate(['/account']);
         });
@@ -118,6 +120,16 @@ export class RegisterComponent {
       } else {
         this.errorMessage = 'Ocurrió un error durante el registro';
       }
+    });
+  }
+
+  updateUserRol(id: string) {
+    this.userService.getUserById(id).then(userPromise => {
+      from(userPromise).subscribe(user => {
+        if(user.rol) {
+          this.globalData.setLoggedInUserRol(user.rol);
+        }
+      })
     });
   }
 
