@@ -1,1 +1,56 @@
-<p>ingredient-create works!</p>
+<section>
+  <div class="ingredient-create">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="mt-5">CREAR INGREDIENTE</h1>
+      <img src="../../../assets/banner.png" class="banner mb-5">
+    </div>
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 100vh;">
+      <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
+        <div class="card-body">
+          <form [formGroup]="formIngredient" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label for="imagen">Imagen</label>
+              <input type="file" (change)="onFileSelected($event)" class="form-control">
+              <small *ngIf="imageNoValido" class="form-text text-danger">Debe añadir una imagen</small>
+            </div>
+
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" name="nombre" id="nombre" size="30" class="form-control" formControlName="name"
+              [(ngModel)]="ingredient.name" [ngClass]="{'campo':!nameNoValido,'campo-mal':nameNoValido}">
+              <small *ngIf="nameNoValido" class="form-text text-danger">El campo no puede estar vacío o contener números</small>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Descripción</label>
+              <textarea name="descripcion" id="descripcion" rows="5" class="form-control" formControlName="description"
+              [(ngModel)]="ingredient.description" [ngClass]="{'campo':!descriptionNoValido,'campo-mal':descriptionNoValido}"></textarea>
+              <small *ngIf="descriptionNoValido" class="form-text text-danger">El campo no puede estar vacío o contener números</small>
+            </div>
+
+            <div class="form-group">
+              <label for="filtro">Tipo de ingrediente</label>
+              <select name="filtro" id="filtro" class="form-control" formControlName="filter" [(ngModel)]="ingredient.filter"
+                [ngClass]="{'campo':!filterNoValido,'campo-mal':filterNoValido}" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="Aceites">Aceites</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Carnes">Carnes</option>
+                <option value="Cereales">Cereales</option>
+                <option value="Especias">Especias</option>
+                <option value="Frutas">Frutas</option>
+                <option value="Lácteos">Lácteos</option>
+                <option value="Legumbres">Legumbbres</option>
+                <option value="Pescados y mariscos">Pescados y mariscos</option>
+                <option value="Verduras">Verduras</option>
+              </select>
+              <small *ngIf="filterNoValido" class="form-text text-danger">Debe seleccionar uno</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" [ngClass]="{'onSubmit':!formIngredient.invalid,'onSubmit-desactivado':formIngredient.invalid}" [disabled]="formIngredient.invalid">Crear</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

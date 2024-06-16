@@ -25,7 +25,7 @@ export class IngredientService {
     );
   }
 
-  async createIngredient(ingredient: Ingredient) {
+  async createIngredient(ingredient: Ingredient): Promise<string | false> {
     try {
       const docRef = await this.af.collection<Ingredient>('ingredientes').add(ingredient);
       return docRef.id;
@@ -34,6 +34,7 @@ export class IngredientService {
       return false;
     }
   }
+
 
   async updateIngredient(id: string, ingredient: Ingredient) {
     try {
