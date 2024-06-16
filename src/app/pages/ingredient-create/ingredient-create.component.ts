@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Ingredient } from 'src/app/interfaces/ingredient';
 import { IngredientService } from 'src/app/services/ingredient.service';
-import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';  // Asegúrate de importar desde @angular/fire/storage
+import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 
 @Component({
   selector: 'app-ingredient-create',
@@ -12,7 +12,7 @@ import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage
 })
 export class IngredientCreateComponent {
 
-  ingrediente: Ingredient = { };
+  ingrediente: Ingredient = {};
 
   ingredient: any = {
     img: [],
@@ -23,16 +23,12 @@ export class IngredientCreateComponent {
 
   formIngredient!: FormGroup;
   selectedFile: File | null = null;
+  errorMessage: string | null = null;
 
   namePattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]{3,}$/;
   descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[^0-9]{3,}$/;
 
-  constructor(
-    private ingredientService: IngredientService,
-    private router: Router,
-    private fb: FormBuilder,
-    private storage: Storage  // Inyectamos el servicio de almacenamiento
-  ) {
+  constructor(private ingredientService: IngredientService, private router: Router, private fb: FormBuilder, private storage: Storage) {
     this.crearFormulario();
   }
 
@@ -87,14 +83,28 @@ export class IngredientCreateComponent {
       this.ingrediente.descripcion = this.ingredient.description;
       this.ingrediente.filtro = this.ingredient.filter;
 
-      const docId = await this.ingredientService.createIngredient(this.ingrediente);
-      if (docId) {
-        this.router.navigate(['/ingredient-details']);
-      } else {
-        console.error('Error al crear el ingrediente');
-      }
+      this.ingredientService.checkIfIngredientNameExists(this.ingrediente.nombre!).subscribe(async (exists) => {
+        if (exists) {
+          this.errorMessage = 'El ingrediente ya existe.';
+          return;
+        }
+
+        const docId = await this.ingredientService.createIngredient(this.ingrediente);
+        if (docId) {
+          this.ingrediente.id = docId;
+          await this.ingredientService.updateIngredient(docId, this.ingrediente);
+          this.router.navigate(['/ingredient-details']);
+        } else {
+          console.error('Error al crear el ingrediente');
+        }
+      });
+
     } catch (error) {
       console.error('Error al subir la imagen: ', error);
     }
+  }
+
+  cancel() {
+    this.router.navigate(['/ingredients']);
   }
 }

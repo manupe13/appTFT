@@ -11,10 +11,6 @@ export class IngredientService {
 
   constructor(private af: AngularFirestore, private storage: Storage) { }
 
-  /*getIngredient() {
-    return this.af.collection<Ingredient>('ingredientes').valueChanges();
-  }*/
-
   getIngredients(limit: number, startAfterDoc?: QueryDocumentSnapshot<Ingredient>): Observable<Ingredient[]> {
     let query = this.af.collection<Ingredient>('ingredientes', ref => {
       let q = ref.orderBy('nombre').limit(limit);
@@ -38,21 +34,20 @@ export class IngredientService {
       map(doc => {
         const data = doc.payload.data();
         const id = doc.payload.id;
-        return {id, ...data} as Ingredient;
+        return { id, ...data } as Ingredient;
       })
     );
   }
 
   async createIngredient(ingredient: Ingredient): Promise<string | false> {
     try {
-      const docRef = await this.af.collection<Ingredient>('ingredientes').add(ingredient);
-      return docRef.id;
+      const docRef = await this.af.collection<Ingredient>('ingredientes').doc(ingredient.nombre).set(ingredient);
+      return ingredient.nombre!;
     } catch (err) {
       console.error(err);
       return false;
     }
   }
-
 
   async updateIngredient(id: string, ingredient: Ingredient) {
     try {
@@ -74,8 +69,14 @@ export class IngredientService {
     }
   }
 
+  checkIfIngredientNameExists(nombre: string): Observable<boolean> {
+    return this.af.collection<Ingredient>('ingredientes', ref => ref.where('nombre', '==', nombre)).get().pipe(
+      map(snapshot => !snapshot.empty)
+    );
+  }
+
   getUserDocuments(id: string): Observable<any[]> {
-    const storageRef = ref(this.storage, 'ingredientes/'+id);
+    const storageRef = ref(this.storage, 'ingredientes/' + id);
     return new Observable<any[]>((observer) => {
       list(storageRef)
         .then((listResult) => {

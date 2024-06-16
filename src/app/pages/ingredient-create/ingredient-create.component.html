@@ -4,7 +4,7 @@
       <h1 class="mt-5">CREAR INGREDIENTE</h1>
       <img src="../../../assets/banner.png" class="banner mb-5">
     </div>
-    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 100vh;">
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 50vh;">
       <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
         <div class="card-body">
           <form [formGroup]="formIngredient" (ngSubmit)="onSubmit()">
@@ -47,7 +47,15 @@
               <small *ngIf="filterNoValido" class="form-text text-danger">Debe seleccionar uno</small>
             </div>
 
-            <button type="submit" class="btn btn-primary" [ngClass]="{'onSubmit':!formIngredient.invalid,'onSubmit-desactivado':formIngredient.invalid}" [disabled]="formIngredient.invalid">Crear</button>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <button type="submit" class="btn btn-primary" [ngClass]="{'onSubmit':!formIngredient.invalid,'onSubmit-desactivado':formIngredient.invalid}" [disabled]="formIngredient.invalid">Crear</button>
+              <button class="btn" (click)="cancel()" style="background-color: lightgrey;">Cancelar</button>
+            </div>
+
           </form>
         </div>
       </div>
