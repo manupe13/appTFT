@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Recipe } from '../interfaces/recipe';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Storage, list, ref, getDownloadURL } from '@angular/fire/storage';
+import { AngularFirestore, QueryDocumentSnapshot } from '@angular/fire/compat/firestore';
 import { Observable, map } from 'rxjs';
 
 @Injectable({
@@ -11,24 +10,28 @@ export class RecipeService {
 
   constructor(private af: AngularFirestore, private storage: Storage) { }
 
-  getRecipe() {
-    return this.af.collection<Recipe>('recetas').valueChanges();
-  }
+  getRecipes(limit: number, startAfterDoc?: QueryDocumentSnapshot<Recipe>): Observable<Recipe[]> {
+    let query = this.af.collection<Recipe>('recetas', ref => {
+      let q = ref.orderBy('nombre').limit(limit);
+      if (startAfterDoc) {
+        q = q.startAfter(startAfterDoc);
+      }
+      return q;
+    });
 
-  async getRecipeById(id: string) {
-    return this.af.collection<Recipe>('recetas').doc(id).snapshotChanges().pipe(
-      map(doc => {
-        const data = doc.payload.data();
-        const id = doc.payload.id;
-        return {id, ...data} as Recipe;
-      })
+    return query.snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as Recipe;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
     );
   }
 
-  async createRecipe(recipe: Recipe) {
+  async createRecipe(recipe: Recipe): Promise<string | false> {
     try {
-      const docRef = await this.af.collection<Recipe>('recetas').add(recipe);
-      return docRef.id;
+      const docRef = await this.af.collection<Recipe>('recetas').doc(recipe.nombre).set(recipe);
+      return recipe.nombre!;
     } catch (err) {
       console.error(err);
       return false;
@@ -54,32 +57,4 @@ export class RecipeService {
       return false;
     }
   }
-
-  getUserDocuments(id: string): Observable<any[]> {
-    const storageRef = ref(this.storage, 'recetas/'+id);
-    return new Observable<any[]>((observer) => {
-      list(storageRef)
-        .then((listResult) => {
-          const documents = listResult.items.map(async (itemRef) => {
-            const downloadUrl = await getDownloadURL(itemRef);
-            return {
-              name: itemRef.name,
-              downloadUrl: downloadUrl,
-            };
-          });
-          Promise.all(documents)
-            .then((resolvedDocuments) => {
-              observer.next(resolvedDocuments);
-              observer.complete();
-            })
-            .catch((error) => {
-              observer.error(error);
-            });
-        })
-        .catch((error) => {
-          observer.error(error);
-        });
-    });
-  }
-
 }

@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Ingredient } from '../interfaces/ingredient';
-import { AngularFirestore, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
-import { Storage, list, ref, getDownloadURL } from '@angular/fire/storage';
-import { Observable, map, from } from 'rxjs';
+import { AngularFirestore, QueryDocumentSnapshot } from '@angular/fire/compat/firestore';
+import { Observable, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IngredientService {
 
-  constructor(private af: AngularFirestore, private storage: Storage) { }
+  constructor(private af: AngularFirestore) { }
 
   getIngredients(limit: number, startAfterDoc?: QueryDocumentSnapshot<Ingredient>): Observable<Ingredient[]> {
     let query = this.af.collection<Ingredient>('ingredientes', ref => {
@@ -26,16 +25,6 @@ export class IngredientService {
         const id = a.payload.doc.id;
         return { id, ...data };
       }))
-    );
-  }
-
-  async getIngredientById(id: string) {
-    return this.af.collection<Ingredient>('ingredientes').doc(id).snapshotChanges().pipe(
-      map(doc => {
-        const data = doc.payload.data();
-        const id = doc.payload.id;
-        return { id, ...data } as Ingredient;
-      })
     );
   }
 
@@ -75,30 +64,4 @@ export class IngredientService {
     );
   }
 
-  getUserDocuments(id: string): Observable<any[]> {
-    const storageRef = ref(this.storage, 'ingredientes/' + id);
-    return new Observable<any[]>((observer) => {
-      list(storageRef)
-        .then((listResult) => {
-          const documents = listResult.items.map(async (itemRef) => {
-            const downloadUrl = await getDownloadURL(itemRef);
-            return {
-              name: itemRef.name,
-              downloadUrl: downloadUrl,
-            };
-          });
-          Promise.all(documents)
-            .then((resolvedDocuments) => {
-              observer.next(resolvedDocuments);
-              observer.complete();
-            })
-            .catch((error) => {
-              observer.error(error);
-            });
-        })
-        .catch((error) => {
-          observer.error(error);
-        });
-    });
-  }
 }
