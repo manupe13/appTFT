@@ -13,14 +13,10 @@ declare var $: any;
 })
 export class ForgotPasswordComponent {
 
-  form: FormGroup;
+  form!: FormGroup;
   errorMessage: string = '';
 
-  constructor(
-    private resetPasswdService: ResetPasswdService,
-    private userService: UserService,
-    private router: Router
-  ) {
+  constructor(private resetPasswdService: ResetPasswdService, private userService: UserService, private router: Router) {
     this.form = new FormGroup({
       userEmail: new FormControl('', [Validators.required, Validators.email])
     });
