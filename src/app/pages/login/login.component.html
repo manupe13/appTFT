@@ -1,0 +1,47 @@
+<section>
+  <div class="login">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="mt-5">INICIA SESION</h1>
+      <img src="../../../assets/banner.png" class="banner mb-5">
+    </div>
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 50vh;">
+      <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
+        <div class="card-body">
+          <form [formGroup]="formLogin">
+            <div class="form-group">
+              <label class="form-label">Correo electrónico</label>
+              <input type="text" name="correo" id="email" size="30" class="form-control" formControlName="email" [(ngModel)]="user.email">
+            </div>
+
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <div class="input-group">
+                <input type="password" name="contraseña" id="password" size="30" class="form-control" formControlName="password"
+                  [(ngModel)]="user.password">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility('password', 'togglePasswordIcon')">
+                    <i id="togglePasswordIcon" class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <button type="submit" class="btn btn-primary" (click)="loginUser()" [ngClass]="{'submit':!formLogin.invalid,'submit-desactivado':formLogin.invalid}" [disabled]="formLogin.invalid">Iniciar sesion</button>
+          </form>
+
+          <div class="form-group mt-3">
+            <label><a [routerLink]="['/forgot-password']">¿Has olvidado la contraseña?</a></label>
+          </div>
+
+          <div class="form-group mb-0">
+            <label>¿Aún no te has registrado? <a [routerLink]="['/register']">Registrate</a></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

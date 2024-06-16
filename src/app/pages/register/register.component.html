@@ -1,12 +1,90 @@
-<h2>Registro de usuario</h2>
-<form [formGroup]="formReg" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="text" class="form-control" formControlName="email">
+<section>
+  <div class="register">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="mt-5">REGISTRATE</h1>
+      <img src="../../../assets/banner.png" class="banner mb-5">
     </div>
-    <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" class="form-control" formControlName="password">
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 100vh;">
+      <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
+        <div class="card-body">
+          <form [formGroup]="formReg">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" name="nombre" id="nombre" size="30" class="form-control" formControlName="name"
+                [(ngModel)]="user.name" [ngClass]="{'campo':!nombreNoValido,'campo-mal':nombreNoValido}">
+              <small *ngIf="nombreNoValido" class="form-text text-danger">Ingrese su nombre</small>
+            </div>
+
+            <div class="form-group">
+              <label for="apellido1">Primer apellido</label>
+              <input type="text" name="apellido1" id="apellido1" size="30" class="form-control" formControlName="surname1"
+                [(ngModel)]="user.surname1" [ngClass]="{'campo':!surname1NoValido,'campo-mal':surname1NoValido}">
+              <small *ngIf="surname1NoValido" class="form-text text-danger">Ingrese su primer apellido</small>
+            </div>
+
+            <div class="form-group">
+              <label for="apellido2">Segundo apellido</label>
+              <input type="text" name="apellido2" id="apellido2" size="30" class="form-control" formControlName="surname2"
+                [(ngModel)]="user.surname2" [ngClass]="{'campo':!surname2NoValido,'campo-mal':surname2NoValido}">
+              <small *ngIf="surname2NoValido" class="form-text text-danger">Ingrese su segundo apellido</small>
+            </div>
+
+            <div class="form-group">
+              <label for="date">Fecha de nacimiento</label>
+              <input type="date" name="fecha" id="date" class="form-control" formControlName="date" [(ngModel)]="user.date"
+                [ngClass]="{'campo':!dateNoValido,'campo-mal':dateNoValido}" style="cursor: pointer;">
+              <small *ngIf="dateNoValido" class="form-text text-danger">Ponga su fecha de nacimiento</small>
+            </div>
+
+            <div class="form-group">
+              <label for="pais">País</label>
+              <select name="pais" id="pais" class="form-control" formControlName="country" [(ngModel)]="user.country"
+                [ngClass]="{'campo':!countryNoValido,'campo-mal':countryNoValido}" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="España">España</option>
+                <option value="Francia">Francia</option>
+                <option value="Italia">Italia</option>
+                <option value="Reino Unido">Reino Unido</option>
+              </select>
+              <small *ngIf="countryNoValido" class="form-text text-danger">Debe poner su país de origen</small>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Teléfono</label>
+              <input type="text" name="telefono" id="phone" size="30" class="form-control" formControlName="phone"
+                [(ngModel)]="user.phone" [ngClass]="{'campo':!phoneNoValido,'campo-mal':phoneNoValido}">
+              <small *ngIf="phoneNoValido" class="form-text text-danger">Debe poner un número válido</small>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input type="email" name="correo" id="email" size="30" class="form-control" formControlName="email"
+                [(ngModel)]="user.email" [ngClass]="{'campo':!emailNoValido,'campo-mal':emailNoValido}">
+              <small *ngIf="emailNoValido" class="form-text text-danger">Debe poner un correo adecuado</small>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <div class="input-group">
+                <input type="password" name="contraseña" id="password" size="30" class="form-control" formControlName="password"
+                  [(ngModel)]="user.password" [ngClass]="{'campo':!passwordNoValido,'campo-mal':passwordNoValido}">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility('password', 'togglePasswordIcon')">
+                    <i id="togglePasswordIcon" class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <small *ngIf="passwordNoValido" class="form-text text-danger">La contraseña debe tener al menos una letra mayúscula, una minúscula, un número, un carácter especial y longitud mínima 8</small>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+              {{ errorMessage }}
+            </div>
+
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [ngClass]="{'onSubmit':!formReg.invalid,'onSubmit-desactivado':formReg.invalid}" [disabled]="formReg.invalid">Registrarse</button>
+          </form>
+        </div>
+      </div>
     </div>
-    <input type="submit" value="Enviar">
-</form>
+  </div>
+</section>

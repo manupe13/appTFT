@@ -1,0 +1,29 @@
+.menu-superior {
+  padding: 10px 20px;
+}
+
+.navbar-brand {
+  margin-right: auto;
+}
+
+.navbar-nav .nav-item {
+  margin-left: 15px;
+}
+
+.nav-link {
+  color: white !important;
+}
+
+.nav-link.btn {
+  color: #163E7A !important;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.nav-link:hover {
+  color: #163E7A !important;
+}
+
+.nav-link.btn:hover {
+  background-color: #e7e7e7;
+}
