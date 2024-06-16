@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Ingredient } from '../interfaces/ingredient';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFirestore, QueryDocumentSnapshot, QuerySnapshot } from '@angular/fire/compat/firestore';
 import { Storage, list, ref, getDownloadURL } from '@angular/fire/storage';
-import { Observable, map } from 'rxjs';
+import { Observable, map, from } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +11,26 @@ export class IngredientService {
 
   constructor(private af: AngularFirestore, private storage: Storage) { }
 
-  getIngredient() {
+  /*getIngredient() {
     return this.af.collection<Ingredient>('ingredientes').valueChanges();
+  }*/
+
+  getIngredients(limit: number, startAfterDoc?: QueryDocumentSnapshot<Ingredient>): Observable<Ingredient[]> {
+    let query = this.af.collection<Ingredient>('ingredientes', ref => {
+      let q = ref.orderBy('nombre').limit(limit);
+      if (startAfterDoc) {
+        q = q.startAfter(startAfterDoc);
+      }
+      return q;
+    });
+
+    return query.snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as Ingredient;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    );
   }
 
   async getIngredientById(id: string) {

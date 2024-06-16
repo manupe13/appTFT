@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
 import { NgModule } from '@angular/core';
 import { provideAuth,getAuth } from '@angular/fire/auth';
+import { provideStorage, getStorage } from '@angular/fire/storage';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AccountComponent } from './pages/account/account.component';
@@ -51,7 +52,8 @@ import { UpdatePasswordComponent } from './pages/update-password/update-password
     AngularFireModule.initializeApp(environment.firebaseConfig),
     ReactiveFormsModule,
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-    provideAuth(() => getAuth())
+    provideAuth(() => getAuth()),
+    provideStorage (() => getStorage())
   ],
   providers: [],
   bootstrap: [AppComponent]
