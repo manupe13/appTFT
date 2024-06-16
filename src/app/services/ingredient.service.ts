@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Ingredient } from '../interfaces/ingredient';
-import { AngularFirestore, QueryDocumentSnapshot } from '@angular/fire/compat/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable, map } from 'rxjs';
 
 @Injectable({
@@ -10,11 +10,11 @@ export class IngredientService {
 
   constructor(private af: AngularFirestore) { }
 
-  getIngredients(limit: number, startAfterDoc?: QueryDocumentSnapshot<Ingredient>): Observable<Ingredient[]> {
+  getIngredients(filtro?: string): Observable<Ingredient[]> {
     let query = this.af.collection<Ingredient>('ingredientes', ref => {
-      let q = ref.orderBy('nombre').limit(limit);
-      if (startAfterDoc) {
-        q = q.startAfter(startAfterDoc);
+      let q = ref.orderBy('nombre');
+      if (filtro && filtro !== 'Todos') {
+        q = ref.where('filtro', '==', filtro).orderBy('nombre');
       }
       return q;
     });
@@ -30,7 +30,7 @@ export class IngredientService {
 
   async createIngredient(ingredient: Ingredient): Promise<string | false> {
     try {
-      const docRef = await this.af.collection<Ingredient>('ingredientes').doc(ingredient.nombre).set(ingredient);
+      await this.af.collection<Ingredient>('ingredientes').doc(ingredient.nombre).set(ingredient);
       return ingredient.nombre!;
     } catch (err) {
       console.error(err);
@@ -40,7 +40,7 @@ export class IngredientService {
 
   async updateIngredient(id: string, ingredient: Ingredient) {
     try {
-      await this.af.collection<Ingredient>('ingredientes').doc(id).update(ingredient).then();
+      await this.af.collection<Ingredient>('ingredientes').doc(id).update(ingredient);
       return true;
     } catch (err) {
       console.error(err);
@@ -63,5 +63,4 @@ export class IngredientService {
       map(snapshot => !snapshot.empty)
     );
   }
-
 }
