@@ -64,10 +64,9 @@ export class IngredientsComponent implements OnInit {
   }
 
   onSearchChange(event: any) {
-    this.searchTerm = event.target.value.toLowerCase(); // Convertir a minúsculas
+    this.searchTerm = event.target.value.toLowerCase();
     this.searchIngredients();
   }
-
 
   loadIngredients() {
     if (this.loading) return;
@@ -95,5 +94,14 @@ export class IngredientsComponent implements OnInit {
       console.error("Error searching ingredients:", error);
       this.loading = false;
     });
+  }
+
+  goDetails(id: string) {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        id: id
+      }
+    };
+    this.router.navigate(['ingredient-details'], navExtras);
   }
 }
