@@ -10,6 +10,16 @@ export class IngredientService {
 
   constructor(private af: AngularFirestore) { }
 
+  getIngredientById(id: string): Observable<Ingredient> {
+    return this.af.collection<Ingredient>('ingredientes').doc(id).snapshotChanges().pipe(
+      map(action => {
+        const data = action.payload.data() as Ingredient;
+        const id = action.payload.id;
+        return { id, ...data };
+      })
+    );
+  }
+
   getIngredients(filtro?: string): Observable<Ingredient[]> {
     let query = this.af.collection<Ingredient>('ingredientes', ref => {
       let q = ref.orderBy('nombre');
@@ -46,7 +56,7 @@ export class IngredientService {
 
   async createIngredient(ingredient: Ingredient): Promise<string | false> {
     try {
-      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : ''; // Añade este campo con comprobación
+      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : '';
       await this.af.collection<Ingredient>('ingredientes').doc(ingredient.nombre).set(ingredient);
       return ingredient.nombre!;
     } catch (err) {
@@ -57,7 +67,7 @@ export class IngredientService {
 
   async updateIngredient(id: string, ingredient: Ingredient) {
     try {
-      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : ''; // Añade este campo con comprobación
+      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : '';
       await this.af.collection<Ingredient>('ingredientes').doc(id).update(ingredient);
       return true;
     } catch (err) {
