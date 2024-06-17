@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { Ingredient } from 'src/app/interfaces/ingredient';
 import { IngredientService } from 'src/app/services/ingredient.service';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
@@ -93,7 +93,12 @@ export class IngredientCreateComponent {
         if (docId) {
           this.ingrediente.id = docId;
           await this.ingredientService.updateIngredient(docId, this.ingrediente);
-          this.router.navigate(['/ingredient-details']);
+          const navExtras: NavigationExtras = {
+            queryParams: {
+              id: docId
+            }
+          };
+          this.router.navigate(['ingredient-details'], navExtras);
         } else {
           console.error('Error al crear el ingrediente');
         }
