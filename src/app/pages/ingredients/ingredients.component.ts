@@ -15,8 +15,10 @@ export class IngredientsComponent implements OnInit {
   ingredients: Ingredient[] = [];
   loading: boolean = false;
   filtro: string = 'Todos';
+  searchTerm: string = '';
+  noResults: boolean = false;
 
-  constructor(private ingredientService: IngredientService, private globalData: GlobalDataService,private router: Router) {}
+  constructor(private ingredientService: IngredientService, private globalData: GlobalDataService, private router: Router) {}
 
   ngOnInit() {
     this.loadIngredients();
@@ -27,23 +29,15 @@ export class IngredientsComponent implements OnInit {
   }
 
   authorizedRol() {
-    if(this.userRol == 'Admin' || this.userRol == 'User') {
-      return true;
-    } else {
-      return false;
-    }
+    return this.userRol == 'Admin' || this.userRol == 'User';
   }
 
   authorizedRolAdmin() {
-    if(this.userRol == 'Admin') {
-      return true;
-    } else {
-      return false;
-    }
+    return this.userRol == 'Admin';
   }
 
-  createIngredient(){
-    if(this.authorizedRolAdmin()){
+  createIngredient() {
+    if (this.authorizedRolAdmin()) {
       const navExtras: NavigationExtras = {
         queryParams: {
           id: ''
@@ -53,11 +47,8 @@ export class IngredientsComponent implements OnInit {
     }
   }
 
-  /*Hay que darle la verdadera funcionalidad que es que cada vez que le de al boton,
-    se añadirá en la lista de existente del usuario ++ */
-
-  addIngredient(){
-    if(this.authorizedRolAdmin()){
+  addIngredient() {
+    if (this.authorizedRol()) {
       const navExtras: NavigationExtras = {
         queryParams: {
           id: ''
@@ -72,6 +63,12 @@ export class IngredientsComponent implements OnInit {
     this.loadIngredients();
   }
 
+  onSearchChange(event: any) {
+    this.searchTerm = event.target.value.toLowerCase(); // Convertir a minúsculas
+    this.searchIngredients();
+  }
+
+
   loadIngredients() {
     if (this.loading) return;
     this.loading = true;
@@ -79,8 +76,23 @@ export class IngredientsComponent implements OnInit {
     this.ingredientService.getIngredients(this.filtro).subscribe((ingredients: Ingredient[]) => {
       this.ingredients = ingredients;
       this.loading = false;
+      this.noResults = this.ingredients.length === 0;
     }, (error) => {
       console.error("Error loading ingredients:", error);
+      this.loading = false;
+    });
+  }
+
+  searchIngredients() {
+    if (this.loading) return;
+    this.loading = true;
+
+    this.ingredientService.searchIngredientsByName(this.searchTerm).subscribe((ingredients: Ingredient[]) => {
+      this.ingredients = ingredients;
+      this.loading = false;
+      this.noResults = this.ingredients.length === 0;
+    }, (error) => {
+      console.error("Error searching ingredients:", error);
       this.loading = false;
     });
   }

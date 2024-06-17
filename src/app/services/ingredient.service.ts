@@ -28,8 +28,25 @@ export class IngredientService {
     );
   }
 
+  searchIngredientsByName(name: string): Observable<Ingredient[]> {
+    let lowerName = name.toLowerCase();
+    let query = this.af.collection<Ingredient>('ingredientes', ref => ref
+      .where('nombre_lower', '>=', lowerName)
+      .where('nombre_lower', '<=', lowerName + '\uf8ff')
+    );
+
+    return query.snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as Ingredient;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    );
+  }
+
   async createIngredient(ingredient: Ingredient): Promise<string | false> {
     try {
+      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : ''; // Añade este campo con comprobación
       await this.af.collection<Ingredient>('ingredientes').doc(ingredient.nombre).set(ingredient);
       return ingredient.nombre!;
     } catch (err) {
@@ -40,6 +57,7 @@ export class IngredientService {
 
   async updateIngredient(id: string, ingredient: Ingredient) {
     try {
+      ingredient.nombre_lower = ingredient.nombre ? ingredient.nombre.toLowerCase() : ''; // Añade este campo con comprobación
       await this.af.collection<Ingredient>('ingredientes').doc(id).update(ingredient);
       return true;
     } catch (err) {
@@ -59,7 +77,7 @@ export class IngredientService {
   }
 
   checkIfIngredientNameExists(nombre: string): Observable<boolean> {
-    return this.af.collection<Ingredient>('ingredientes', ref => ref.where('nombre', '==', nombre)).get().pipe(
+    return this.af.collection<Ingredient>('ingredientes', ref => ref.where('nombre_lower', '==', nombre.toLowerCase())).get().pipe(
       map(snapshot => !snapshot.empty)
     );
   }

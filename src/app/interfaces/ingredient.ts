@@ -4,4 +4,5 @@ export interface Ingredient {
   descripcion?: string,
   filtro?: string,
   id?: string,
+  nombre_lower?: string,
 }
