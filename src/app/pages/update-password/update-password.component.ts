@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ResetPasswdService } from 'src/app/services/reset-passwd.service';
 
+declare var $: any;
+
 @Component({
   selector: 'app-update-password',
   templateUrl: './update-password.component.html',
@@ -68,15 +70,24 @@ export class UpdatePasswordComponent implements OnInit {
       }
 
       await this.resetPasswdSvc.updatePassword(newPassword);
-      alert('Contraseña actualizada con éxito');
-      this.router.navigate(['/account']);
+      this.openConfirmationModal();
     } catch (error) {
       console.log(error);
       alert('Error al actualizar la contraseña');
     }
   }
 
-  cancel() {
+  openConfirmationModal() {
+    $('#confirmationModal').modal('show');
+  }
+
+  redirectToAccount() {
+    this.router.navigate(['/account']);
+  }
+
+  cancel(event: Event) {
+    event.preventDefault();
+    this.formPass.reset();
     this.router.navigate(['/account']);
   }
 }
