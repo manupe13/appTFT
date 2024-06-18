@@ -38,12 +38,17 @@ export class IngredientService {
     );
   }
 
-  searchIngredientsByName(name: string): Observable<Ingredient[]> {
+  searchIngredientsByName(name: string, filtro?: string): Observable<Ingredient[]> {
     let lowerName = name.toLowerCase();
-    let query = this.af.collection<Ingredient>('ingredientes', ref => ref
-      .where('nombre_lower', '>=', lowerName)
-      .where('nombre_lower', '<=', lowerName + '\uf8ff')
-    );
+    let query = this.af.collection<Ingredient>('ingredientes', ref => {
+      let q = ref
+        .where('nombre_lower', '>=', lowerName)
+        .where('nombre_lower', '<=', lowerName + '\uf8ff');
+      if (filtro && filtro !== 'Todos') {
+        q = q.where('filtro', '==', filtro);
+      }
+      return q;
+    });
 
     return query.snapshotChanges().pipe(
       map(actions => actions.map(a => {

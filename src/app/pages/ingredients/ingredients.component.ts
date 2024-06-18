@@ -86,7 +86,7 @@ export class IngredientsComponent implements OnInit {
     if (this.loading) return;
     this.loading = true;
 
-    this.ingredientService.searchIngredientsByName(this.searchTerm).subscribe((ingredients: Ingredient[]) => {
+    this.ingredientService.searchIngredientsByName(this.searchTerm, this.filtro).subscribe((ingredients: Ingredient[]) => {
       this.ingredients = ingredients;
       this.loading = false;
       this.noResults = this.ingredients.length === 0;
