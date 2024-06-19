@@ -97,4 +97,24 @@ export class RecipeService {
     );
   }
 
+  getRandomRecipes(limit: number): Observable<Recipe[]> {
+    return this.af.collection<Recipe>('recetas').get().pipe(
+      map(snapshot => {
+        const recipes: Recipe[] = [];
+        snapshot.forEach(doc => {
+          recipes.push({ id: doc.id, ...doc.data() } as Recipe);
+        });
+        return this.shuffleArray(recipes).slice(0, limit);
+      })
+    );
+  }
+
+  private shuffleArray(array: any[]): any[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
 }

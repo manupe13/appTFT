@@ -96,4 +96,24 @@ export class IngredientService {
       map(snapshot => !snapshot.empty)
     );
   }
+
+  getRandomIngredients(limit: number): Observable<Ingredient[]> {
+    return this.af.collection<Ingredient>('ingredientes').get().pipe(
+      map(snapshot => {
+        const ingredients: Ingredient[] = [];
+        snapshot.forEach(doc => {
+          ingredients.push({ id: doc.id, ...doc.data() } as Ingredient);
+        });
+        return this.shuffleArray(ingredients).slice(0, limit);
+      })
+    );
+  }
+
+  private shuffleArray(array: any[]): any[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
 }
