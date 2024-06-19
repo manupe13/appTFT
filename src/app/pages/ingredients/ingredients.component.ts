@@ -3,6 +3,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { Ingredient } from 'src/app/interfaces/ingredient';
 import { GlobalDataService } from 'src/app/services/global-data.service';
 import { IngredientService } from 'src/app/services/ingredient.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-ingredients',
@@ -11,51 +12,30 @@ import { IngredientService } from 'src/app/services/ingredient.service';
 })
 export class IngredientsComponent implements OnInit {
 
-  userRol: string = 'null';
   ingredients: Ingredient[] = [];
   loading: boolean = false;
   filtro: string = 'Todos';
   searchTerm: string = '';
   noResults: boolean = false;
+  isLoggedIn: boolean = false;
+  userRole: string = 'null';
 
-  constructor(private ingredientService: IngredientService, private globalData: GlobalDataService, private router: Router) {}
+  constructor(
+    private ingredientService: IngredientService,
+    private globalData: GlobalDataService,
+    private router: Router,
+    private userService: UserService
+  ) {}
 
   ngOnInit() {
     this.loadIngredients();
-
-    this.globalData.getLoggedInUserRol().subscribe(rol => {
-      this.userRol = rol;
+    this.globalData.getLoggedInUserRol().subscribe(role => {
+      this.userRole = role;
     });
-  }
 
-  authorizedRol() {
-    return this.userRol == 'Admin' || this.userRol == 'User';
-  }
-
-  authorizedRolAdmin() {
-    return this.userRol == 'Admin';
-  }
-
-  createIngredient() {
-    if (this.authorizedRolAdmin()) {
-      const navExtras: NavigationExtras = {
-        queryParams: {
-          id: ''
-        }
-      };
-      this.router.navigate(['ingredient-create'], navExtras);
-    }
-  }
-
-  addIngredient() {
-    if (this.authorizedRol()) {
-      const navExtras: NavigationExtras = {
-        queryParams: {
-          id: ''
-        }
-      };
-      this.router.navigate(['pantry'], navExtras);
-    }
+    this.userService.userLogged().subscribe(user => {
+      this.isLoggedIn = !!user;
+    });
   }
 
   onFilterChange(event: any) {
@@ -103,5 +83,18 @@ export class IngredientsComponent implements OnInit {
       }
     };
     this.router.navigate(['ingredient-details'], navExtras);
+  }
+
+  createIngredient() {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        action: 'create'
+      }
+    };
+    this.router.navigate(['ingredient-create'], navExtras);
+  }
+
+  addIngredient() {
+    // Lógica para añadir ingrediente a la despensa
   }
 }
