@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NavigationExtras, Router } from '@angular/router';
 import { GlobalDataService } from 'src/app/services/global-data.service';
 import { IngredientService } from 'src/app/services/ingredient.service';
 import { RecipeService } from 'src/app/services/recipe.service';
@@ -18,7 +19,7 @@ export class HomeComponent implements OnInit {
   recipes: Recipe[] = [];
   recipesToShow: number = 4;
 
-  constructor(private globalData: GlobalDataService, private ingredientService: IngredientService, private recipeService: RecipeService) { }
+  constructor(private globalData: GlobalDataService, private ingredientService: IngredientService, private recipeService: RecipeService, private router: Router) { }
 
   ngOnInit(): void {
     this.globalData.getLoggedUserId().subscribe(id => {
@@ -39,5 +40,23 @@ export class HomeComponent implements OnInit {
     this.recipeService.getRandomRecipes(4).subscribe(data => {
       this.recipes = data;
     });
+  }
+
+  goDetailsIngredient(id: string) {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        id: id
+      }
+    };
+    this.router.navigate(['ingredient-details'], navExtras);
+  }
+
+  goDetailsRecipe(id: string) {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        id: id
+      }
+    };
+    this.router.navigate(['recipe-details'], navExtras);
   }
 }
