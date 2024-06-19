@@ -30,7 +30,7 @@ export class RecipeCreateComponent {
   errorMessage: string | null = null;
 
   namePattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]{3,}$/;
-  preparationPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9.,()]{3,}$/;
+  preparationPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9.,()/]{3,}$/;
 
   constructor(private recipeService: RecipeService, private router: Router, private fb: FormBuilder, private storage: Storage) {
     this.crearFormulario();
