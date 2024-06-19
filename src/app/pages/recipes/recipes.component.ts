@@ -20,12 +20,7 @@ export class RecipesComponent implements OnInit {
   isLoggedIn: boolean = false;
   userRole: string = 'null';
 
-  constructor(
-    private recipeService: RecipeService,
-    private globalData: GlobalDataService,
-    private router: Router,
-    private userService: UserService
-  ) {}
+  constructor(private recipeService: RecipeService, private globalData: GlobalDataService, private router: Router, private userService: UserService) {}
 
   ngOnInit() {
     this.loadRecipes();
