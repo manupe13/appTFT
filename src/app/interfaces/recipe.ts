@@ -5,7 +5,8 @@ export interface Recipe {
   duracion?: string,
   dificultad?: string,
   filtro?: string,
-  ingredientes?: string[],
+  ingredientes?: string,
   preparacion?: string,
   id?: string,
+  nombre_lower?: string,
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Recipe } from '../interfaces/recipe';
-import { AngularFirestore, QueryDocumentSnapshot } from '@angular/fire/compat/firestore';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable, map } from 'rxjs';
 
 @Injectable({
@@ -8,13 +8,44 @@ import { Observable, map } from 'rxjs';
 })
 export class RecipeService {
 
-  constructor(private af: AngularFirestore, private storage: Storage) { }
+  constructor(private af: AngularFirestore) { }
 
-  getRecipes(limit: number, startAfterDoc?: QueryDocumentSnapshot<Recipe>): Observable<Recipe[]> {
+  getRecipeById(id: string): Observable<Recipe> {
+    return this.af.collection<Recipe>('recetas').doc(id).snapshotChanges().pipe(
+      map(action => {
+        const data = action.payload.data() as Recipe;
+        const id = action.payload.id;
+        return { id, ...data };
+      })
+    );
+  }
+
+  getRecipes(filtro?: string): Observable<Recipe[]> {
     let query = this.af.collection<Recipe>('recetas', ref => {
-      let q = ref.orderBy('nombre').limit(limit);
-      if (startAfterDoc) {
-        q = q.startAfter(startAfterDoc);
+      let q = ref.orderBy('nombre');
+      if (filtro && filtro !== 'Todos') {
+        q = ref.where('filtro', '==', filtro).orderBy('nombre');
+      }
+      return q;
+    });
+
+    return query.snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as Recipe;
+        const id = a.payload.doc.id;
+        return { id, ...data };
+      }))
+    );
+  }
+
+  searchRecipesByName(name: string, filtro?: string): Observable<Recipe[]> {
+    let lowerName = name.toLowerCase();
+    let query = this.af.collection<Recipe>('recetas', ref => {
+      let q = ref
+        .where('nombre_lower', '>=', lowerName)
+        .where('nombre_lower', '<=', lowerName + '\uf8ff');
+      if (filtro && filtro !== 'Todos') {
+        q = q.where('filtro', '==', filtro);
       }
       return q;
     });
@@ -30,7 +61,8 @@ export class RecipeService {
 
   async createRecipe(recipe: Recipe): Promise<string | false> {
     try {
-      const docRef = await this.af.collection<Recipe>('recetas').doc(recipe.nombre).set(recipe);
+      recipe.nombre_lower = recipe.nombre ? recipe.nombre.toLowerCase() : '';
+      await this.af.collection<Recipe>('recetas').doc(recipe.nombre).set(recipe);
       return recipe.nombre!;
     } catch (err) {
       console.error(err);
@@ -40,7 +72,8 @@ export class RecipeService {
 
   async updateRecipe(id: string, recipe: Recipe) {
     try {
-      await this.af.collection<Recipe>('recetas').doc(id).update(recipe).then();
+      recipe.nombre_lower = recipe.nombre ? recipe.nombre.toLowerCase() : '';
+      await this.af.collection<Recipe>('recetas').doc(id).update(recipe);
       return true;
     } catch (err) {
       console.error(err);
@@ -57,4 +90,11 @@ export class RecipeService {
       return false;
     }
   }
+
+  checkIfRecipeNameExists(nombre: string): Observable<boolean> {
+    return this.af.collection<Recipe>('recetas', ref => ref.where('nombre_lower', '==', nombre.toLowerCase())).get().pipe(
+      map(snapshot => !snapshot.empty)
+    );
+  }
+
 }

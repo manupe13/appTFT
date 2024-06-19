@@ -1,1 +1,92 @@
-<p>recipe-create works!</p>
+<section>
+  <div class="recipe-create">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="mt-5">CREAR RECETAE</h1>
+      <img src="../../../assets/banner.png" class="banner mb-5">
+    </div>
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 50vh;">
+      <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
+        <div class="card-body">
+          <form [formGroup]="formRecipe" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label for="imagen">Imagen</label>
+              <div>
+                <input type="file" (change)="onFileSelected($event)">
+              </div>
+              <small *ngIf="imageNoValido" class="form-text text-danger">Debe añadir una imagen</small>
+            </div>
+
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" name="nombre" id="nombre" size="30" class="form-control" formControlName="name"
+              [(ngModel)]="recipe.name" [ngClass]="{'campo':!nameNoValido,'campo-mal':nameNoValido}">
+              <small *ngIf="nameNoValido" class="form-text text-danger">El campo no puede estar vacío o contener números</small>
+            </div>
+
+            <div class="form-group">
+              <label for="people">Personas</label>
+              <input type="number" name="personas" id="personas" min="1" max="10" class="form-control" formControlName="people"
+              [(ngModel)]="recipe.people" [ngClass]="{'campo':!peopleNoValido,'campo-mal':peopleNoValido}">
+              <small *ngIf="peopleNoValido" class="form-text text-danger">Debe seleccionar el número de persona</small>
+            </div>
+
+            <div class="form-group">
+              <label for="duration">Duración</label>
+              <input type="time" name="duracion" id="duracion" class="form-control" formControlName="duration"
+              [(ngModel)]="recipe.duration" [ngClass]="{'campo':!durationNoValido,'campo-mal':durationNoValido}">
+              <small *ngIf="durationNoValido" class="form-text text-danger">Debe seleccionar la duración</small>
+            </div>
+
+            <div class="form-group">
+              <label for="difficulty">Dificultad</label>
+              <select name="dificultad" id="dificultad" class="form-control" formControlName="difficulty" [(ngModel)]="recipe.difficulty"
+                [ngClass]="{'campo':!difficultyNoValido,'campo-mal':difficultyNoValido}" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+              </select>
+              <small *ngIf="difficultyNoValido" class="form-text text-danger">Debe seleccionar uno</small>
+            </div>
+
+            <div class="form-group">
+              <label for="filtro">Tipo de recetae</label>
+              <select name="filtro" id="filtro" class="form-control" formControlName="filter" [(ngModel)]="recipe.filter"
+                [ngClass]="{'campo':!filterNoValido,'campo-mal':filterNoValido}" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="Primeros platos">Primeros platos</option>
+                <option value="Carnes">Carnes</option>
+                <option value="Pescados y mariscos">Pescados y mariscos</option>
+                <option value="Postres">Postres</option>
+              </select>
+              <small *ngIf="filterNoValido" class="form-text text-danger">Debe seleccionar uno</small>
+            </div>
+
+            <div class="form-group">
+              <label for="ingredient">Ingredientes</label>
+              <textarea name="ingrediente" id="ingrediente" rows="5" class="form-control" formControlName="ingredient"
+              [(ngModel)]="recipe.ingredient" [ngClass]="{'campo':!ingredientNoValido,'campo-mal':ingredientNoValido}"></textarea>
+              <small *ngIf="ingredientNoValido" class="form-text text-danger">Debe añadir algún ingrediente</small>
+            </div>
+
+            <div class="form-group">
+              <label for="preparation">Preparacion</label>
+              <textarea name="preparacion" id="preparacion" rows="10" class="form-control" formControlName="preparation"
+              [(ngModel)]="recipe.preparation" [ngClass]="{'campo':!preparationNoValido,'campo-mal':preparationNoValido}"></textarea>
+              <small *ngIf="preparationNoValido" class="form-text text-danger">Debe añadir una preparacion</small>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <button type="submit" class="btn btn-primary" [ngClass]="{'onSubmit':!formRecipe.invalid,'onSubmit-desactivado':formRecipe.invalid}" [disabled]="formRecipe.invalid">Crear</button>
+              <button class="btn" (click)="cancel()" style="background-color: lightgrey;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
