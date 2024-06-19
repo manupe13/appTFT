@@ -5,6 +5,8 @@ import { GlobalDataService } from 'src/app/services/global-data.service';
 import { IngredientService } from 'src/app/services/ingredient.service';
 import { UserService } from 'src/app/services/user.service';
 
+declare var $: any;
+
 @Component({
   selector: 'app-ingredients',
   templateUrl: './ingredients.component.html',
@@ -94,7 +96,37 @@ export class IngredientsComponent implements OnInit {
     this.router.navigate(['ingredient-create'], navExtras);
   }
 
-  addIngredient() {
-    // Lógica para añadir ingrediente a la despensa
+  addIngredient(ingredientId: string) {
+    if (!this.isLoggedIn) {
+      console.error("User is not logged in!");
+      return;
+    }
+
+    const userId = this.userService.getCurrentUserId();
+    if (!userId) {
+      console.error("Could not get the current user ID!");
+      return;
+    }
+
+    this.userService.addIngredientToUser(userId, ingredientId).then(success => {
+      if (success) {
+        this.openConfirmationModal();
+      } else {
+        console.error("Failed to add ingredient to user's existentes.");
+      }
+    }).catch(error => {
+      console.error("Error adding ingredient to user's existentes:", error);
+    });
+  }
+
+  openConfirmationModal() {
+    $('#confirmationModal').modal('show');
+    setTimeout(() => {
+      this.closeConfirmationModal();
+    }, 3000);
+  }
+
+  closeConfirmationModal() {
+    $('#confirmationModal').modal('hide');
   }
 }

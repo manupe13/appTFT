@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider, authState } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, authState } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../interfaces/user';
-import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 
 @Injectable({
@@ -10,7 +9,7 @@ import { Observable, map } from 'rxjs';
 })
 export class UserService {
 
-  constructor(private auth: Auth, private af: AngularFirestore, private router: Router) { }
+  constructor(private auth: Auth, private af: AngularFirestore) { }
 
   getUser() {
     return this.af.collection<User>('usuarios').valueChanges();
@@ -91,6 +90,36 @@ export class UserService {
           return { id, ...userData } as User;
         })
       );
+  }
+
+  async addIngredientToUser(userId: string, ingredientId: string) {
+    const userDocRef = this.af.collection<User>('usuarios').doc(userId);
+    try {
+      await this.af.firestore.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userDocRef.ref);
+        if (!userDoc.exists) {
+          throw "User does not exist!";
+        }
+
+        const userData = userDoc.data() as User;
+        const existentes = userData.existentes || [];
+
+        let ingredientIndex = existentes.findIndex(item => item.startsWith(`${ingredientId}:`));
+
+        if (ingredientIndex !== -1) {
+          let [id, count] = existentes[ingredientIndex].split(':');
+          existentes[ingredientIndex] = `${id}:${parseInt(count) + 1}`;
+        } else {
+          existentes.push(`${ingredientId}:1`);
+        }
+
+        transaction.update(userDocRef.ref, { existentes: existentes });
+      });
+      return true;
+    } catch (error) {
+      console.error("Error adding ingredient to user:", error);
+      return false;
+    }
   }
 
 }

@@ -38,10 +38,21 @@
           <img *ngIf="ingredient.imgs && ingredient.imgs.length > 0" [src]="ingredient.imgs[0]" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover; margin-right: 15px; cursor: pointer;" (click)="goDetails(ingredient.id ?? '')">
           <div class="w-100 d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0" style="cursor: pointer;" (click)="goDetails(ingredient.id ?? '')">{{ ingredient.nombre }}</h5>
-            <button *ngIf="isLoggedIn && (userRole === 'Admin' || userRole === 'User')" class="btn btn-outline-primary btn-sm ml-auto" (click)="addIngredient()">Añadir a la despensa</button>
+            <button *ngIf="isLoggedIn && (userRole === 'Admin' || userRole === 'User')" class="btn btn-outline-primary btn-sm ml-auto" (click)="addIngredient(ingredient.id ?? '')">Añadir a la despensa</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Modal de confirmación de adición de ingrediente -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        El ingrediente se ha añadido a la despensa correctamente.
+      </div>
+    </div>
+  </div>
+</div>
