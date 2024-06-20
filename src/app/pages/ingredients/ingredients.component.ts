@@ -23,11 +23,7 @@ export class IngredientsComponent implements OnInit {
   userRole: string = 'null';
 
   constructor(
-    private ingredientService: IngredientService,
-    private globalData: GlobalDataService,
-    private router: Router,
-    private userService: UserService
-  ) {}
+    private ingredientService: IngredientService, private globalData: GlobalDataService, private router: Router, private userService: UserService) {}
 
   ngOnInit() {
     this.loadIngredients();
