@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IngredientService } from 'src/app/services/ingredient.service';
 import { Ingredient } from 'src/app/interfaces/ingredient';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
+import { GlobalDataService } from 'src/app/services/global-data.service';
+import { UserService } from 'src/app/services/user.service';
 
 declare var $: any;
 
@@ -22,7 +24,12 @@ export class IngredientDetailsComponent implements OnInit {
 
   descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9]{3,}$/;
 
-  constructor(private ingredientService: IngredientService, private router: Router, private route: ActivatedRoute, private fb: FormBuilder, private storage: Storage) { }
+  isLoggedIn: boolean = false;
+  userRole: string = 'null';
+
+  constructor(
+    private ingredientService: IngredientService, private router: Router, private route: ActivatedRoute, private fb: FormBuilder, private storage: Storage,
+    private globalData: GlobalDataService, private userService: UserService) { }
 
   ngOnInit(): void {
     this.formIngredient = this.fb.group({
@@ -43,6 +50,14 @@ export class IngredientDetailsComponent implements OnInit {
         });
       });
     }
+
+    this.globalData.getLoggedInUserRol().subscribe(role => {
+      this.userRole = role;
+    });
+
+    this.userService.userLogged().subscribe(user => {
+      this.isLoggedIn = !!user;
+    });
   }
 
   setEditable(): void {
