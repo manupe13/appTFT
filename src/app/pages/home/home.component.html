@@ -30,7 +30,7 @@
             <div class="col-3" *ngFor="let ingredient of ingredients">
               <div class="card ingredient-card">
                 <div class="card-img-container">
-                  <img [src]="ingredient.imgs && ingredient.imgs.length > 0 ? ingredient.imgs[0] : 'ruta/a/imagen/por/defecto.png'" class="card-img-top" alt="{{ ingredient.nombre }}" style="cursor: pointer;" (click)="goDetailsIngredient(ingredient.id ?? '')">
+                  <img [src]="ingredient.imgs && ingredient.imgs.length > 0 ? ingredient.imgs[0] : 'ruta/a/imagen/por/defecto.png'" class="image" alt="{{ ingredient.nombre }}" style="cursor: pointer;" (click)="goDetailsIngredient(ingredient.id ?? '')">
                 </div>
                 <div class="card-body">
                   <h5 class="card-title name" style="cursor: pointer;" (click)="goDetailsIngredient(ingredient.id ?? '')">{{ ingredient.nombre }}</h5>
@@ -55,7 +55,7 @@
             <div class="col-3" *ngFor="let recipe of recipes">
               <div class="card recipe-card">
                 <div class="card-img-container">
-                  <img [src]="recipe.imgs && recipe.imgs.length > 0 ? recipe.imgs[0] : 'ruta/a/imagen/por/defecto.png'" class="card-img-top" alt="{{ recipe.nombre }}" style="cursor: pointer;" (click)="goDetailsRecipe(recipe.id ?? '')">
+                  <img [src]="recipe.imgs && recipe.imgs.length > 0 ? recipe.imgs[0] : 'ruta/a/imagen/por/defecto.png'" class="image" alt="{{ recipe.nombre }}" style="cursor: pointer;" (click)="goDetailsRecipe(recipe.id ?? '')">
                 </div>
                 <div class="card-body">
                   <h5 class="card-title name" style="cursor: pointer;" (click)="goDetailsRecipe(recipe.id ?? '')">{{ recipe.nombre }}</h5>
