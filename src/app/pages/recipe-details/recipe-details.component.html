@@ -1,1 +1,112 @@
-<p>recipe-details works!</p>
+<section>
+  <div class="recipe-details">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="mt-5">{{ recipe.nombre }}</h1>
+      <img src="../../../assets/banner.png" class="banner mb-5">
+    </div>
+    <div class="d-flex justify-content-center align-items-center mb-5" style="min-height: 50vh;">
+      <div class="card border-secondary mb-3" style="max-width: 40rem; width: 100%;">
+        <div class="card-body position-relative">
+          <div *ngIf="isLoggedIn && userRole === 'Admin' && !editable" class="position-absolute" style="top: 10px; left: 20px; cursor: pointer;">
+            <i class="fas fa-pencil-alt" (click)="setEditable()" style="color: rgb(255, 140, 0);"></i>
+          </div>
+          <div *ngIf="isLoggedIn && userRole === 'Admin' && !editable" class="position-absolute" style="top: 10px; right: 20px; cursor: pointer;">
+            <i class="fas fa-trash-alt text-danger" (click)="confirmDelete()"></i>
+          </div>
+          <form [formGroup]="formRecipe">
+            <div class="form-group">
+              <div class="d-flex justify-content-center" *ngIf="!editable">
+                <img *ngIf="recipe.imgs && recipe.imgs.length > 0" [src]="recipe.imgs[0]" alt="Imagen de la Receta" class="img-fluid recipe-image">
+              </div>
+              <label for="imagen" *ngIf="editable">Imagen</label>
+              <div>
+                <input *ngIf="editable" type="file" (change)="onFileSelected($event)">
+              </div>
+              <small *ngIf="editable && imageNoValido" class="form-text text-danger">Debe añadir una imagen</small>
+            </div>
+
+            <div class="form-group">
+              <label for="people">Personas</label>
+              <div class="form-control" *ngIf="!editable">{{ recipe.personas }}</div>
+              <input *ngIf="editable" type="number" name="personas" id="personas" min="1" max="10" class="form-control" formControlName="people" [(ngModel)]="recipe.personas">
+              <small *ngIf="editable && peopleNoValido" class="form-text text-danger">Debe seleccionar el número de persona</small>
+            </div>
+
+            <div class="form-group">
+              <label for="duration">Duración</label>
+              <div class="form-control" *ngIf="!editable">{{ recipe.duracion }}</div>
+              <input *ngIf="editable" type="time" name="duracion" id="duracion" class="form-control" formControlName="duration" [(ngModel)]="recipe.duracion">
+              <small *ngIf="editable && durationNoValido" class="form-text text-danger">Debe seleccionar la duración</small>
+            </div>
+
+            <div class="form-group">
+              <label for="difficulty">Dificultad</label>
+              <div class="form-control" *ngIf="!editable">{{ recipe.dificultad }}</div>
+              <select *ngIf="editable" name="dificultad" id="dificultad" class="form-control" formControlName="difficulty" [(ngModel)]="recipe.dificultad" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+              </select>
+              <small *ngIf="editable && difficultyNoValido" class="form-text text-danger">Debe seleccionar uno</small>
+            </div>
+
+            <div class="form-group">
+              <label for="filtro">Tipo de receta</label>
+              <div class="form-control" *ngIf="!editable">{{ recipe.filtro }}</div>
+              <select *ngIf="editable" name="filtro" id="filtro" class="form-control" formControlName="filter" [(ngModel)]="recipe.filtro" style="cursor: pointer;">
+                <option selected disabled>Selecciona una opción</option>
+                <option value="Aceites">Aceites</option>
+                <option value="Primeros platos">Primeros platos</option>
+                <option value="Carnes">Carnes</option>
+                <option value="Pescados y mariscos">Pescados y mariscos</option>
+                <option value="Postres">Postres</option>
+              </select>
+              <small *ngIf="editable && filterNoValido" class="form-text text-danger">Debe seleccionar uno</small>
+            </div>
+
+            <div class="form-group">
+              <label for="ingredient">Ingredientes</label>
+              <textarea class="form-control text-justify" rows="5" readonly *ngIf="!editable">{{ recipe.ingredientes }}</textarea>
+              <textarea *ngIf="editable" name="ingrediente" id="ingrediente" rows="5" class="form-control" formControlName="ingredient" [(ngModel)]="recipe.ingredientes"></textarea>
+              <small *ngIf="editable && ingredientNoValido" class="form-text text-danger">Debe añadir algún ingrediente</small>
+            </div>
+
+            <div class="form-group">
+              <label for="preparacion">Preparación</label>
+              <textarea class="form-control text-justify" rows="10" readonly *ngIf="!editable">{{ recipe.preparacion }}</textarea>
+              <textarea *ngIf="editable" name="preparacion" id="preparacion" rows="10" class="form-control text-justify" formControlName="preparation" [(ngModel)]="recipe.preparacion"></textarea>
+              <small *ngIf="editable && preparationNoValido" class="form-text text-danger">Debe añadir una preparación</small>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <button class="btn btn-primary" (click)="update()" *ngIf="editable">Guardar cambios</button>
+              <button class="btn" (click)="cancel()" *ngIf="editable" style="background-color: lightgrey;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación de eliminación -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar esta receta? Esta acción no se puede deshacer.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="deleteRecipe()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
