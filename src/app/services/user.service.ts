@@ -103,17 +103,22 @@ export class UserService {
 
         const userData = userDoc.data() as User;
         const existentes = userData.existentes || [];
+        const consumidos = userData.consumidos || [];
 
-        let ingredientIndex = existentes.findIndex(item => item.startsWith(`${ingredientId}:`));
+        const consumidoIndex = consumidos.findIndex(item => item.startsWith(`${ingredientId}:`));
+        if (consumidoIndex !== -1) {
+          consumidos.splice(consumidoIndex, 1);
+        }
 
-        if (ingredientIndex !== -1) {
-          let [id, count] = existentes[ingredientIndex].split(':');
-          existentes[ingredientIndex] = `${id}:${parseInt(count) + 1}`;
+        let existentesIndex = existentes.findIndex(item => item.startsWith(`${ingredientId}:`));
+        if (existentesIndex !== -1) {
+          let [id, count] = existentes[existentesIndex].split(':');
+          existentes[existentesIndex] = `${id}:${parseInt(count) + 1}`;
         } else {
           existentes.push(`${ingredientId}:1`);
         }
 
-        transaction.update(userDocRef.ref, { existentes: existentes });
+        transaction.update(userDocRef.ref, { existentes: existentes, consumidos: consumidos });
       });
       return true;
     } catch (error) {
@@ -121,6 +126,7 @@ export class UserService {
       return false;
     }
   }
+
 
 }
 

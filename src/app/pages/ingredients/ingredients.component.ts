@@ -119,7 +119,7 @@ export class IngredientsComponent implements OnInit {
     $('#confirmationModal').modal('show');
     setTimeout(() => {
       this.closeConfirmationModal();
-    }, 3000);
+    }, 2000);
   }
 
   closeConfirmationModal() {
