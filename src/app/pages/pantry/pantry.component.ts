@@ -5,7 +5,9 @@ import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
 import { GlobalDataService } from 'src/app/services/global-data.service';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
+
+declare var $: any;
 
 @Component({
   selector: 'app-pantry',
@@ -19,6 +21,7 @@ export class PantryComponent implements OnInit {
   existentesList: { ingredient: Ingredient, count: number }[] = [];
   consumidosList: { ingredient: Ingredient, count: number }[] = [];
   currentView: string = 'existentes';
+  confirmationMessage: string = '';
 
   ingredientes: Observable<Ingredient[]>;
 
@@ -101,6 +104,8 @@ export class PantryComponent implements OnInit {
         if (this.user && this.user.existentes) {
           this.user.existentes.splice(index, 1);
           this.addToConsumidos(item.ingredient.id, 1);
+          this.confirmationMessage = 'El ingrediente ha pasado a la lista de consumidos.';
+          this.openConfirmationModal();
         }
       }
       this.userService.updateUser(this.userId, this.user).then(() => {
@@ -120,6 +125,8 @@ export class PantryComponent implements OnInit {
         this.user.consumidos.splice(index, 1);
         this.userService.updateUser(this.userId, this.user).then(() => {
           console.log("Updated user consumidos");
+          this.confirmationMessage = 'El ingrediente se ha añadido a la lista de existentes.';
+          this.openConfirmationModal();
         }).catch(error => {
           console.error(error);
         });
@@ -163,5 +170,25 @@ export class PantryComponent implements OnInit {
 
   switchView(view: string) {
     this.currentView = view;
+  }
+
+  goDetails(id: string) {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        id: id
+      }
+    };
+    this.router.navigate(['ingredient-details'], navExtras);
+  }
+
+  openConfirmationModal() {
+    $('#confirmationModal').modal('show');
+    setTimeout(() => {
+      this.closeConfirmationModal();
+    }, 2000);
+  }
+
+  closeConfirmationModal() {
+    $('#confirmationModal').modal('hide');
   }
 }
