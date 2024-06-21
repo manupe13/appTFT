@@ -6,7 +6,6 @@ import { User } from 'src/app/interfaces/user';
 import { Observable } from 'rxjs';
 import { GlobalDataService } from 'src/app/services/global-data.service';
 import { Router } from '@angular/router';
-import { ChangeDetectorRef } from '@angular/core'; // Importar ChangeDetectorRef
 
 @Component({
   selector: 'app-pantry',
@@ -17,19 +16,13 @@ export class PantryComponent implements OnInit {
 
   userId: string = 'null';
   user: User = {};
-  ingredientList: { ingredient: Ingredient, count: number }[] = [];
-  consumedIngredientsList: Ingredient[] = [];
-  currentView: string = 'existentes'; // Propiedad para realizar un seguimiento de la vista actual
+  existentesList: { ingredient: Ingredient, count: number }[] = [];
+  consumidosList: { ingredient: Ingredient, count: number }[] = [];
+  currentView: string = 'existentes';
 
   ingredientes: Observable<Ingredient[]>;
 
-  constructor(
-    private globalData: GlobalDataService,
-    private router: Router,
-    private userService: UserService,
-    private ingredientService: IngredientService,
-    private cdr: ChangeDetectorRef // Agregar ChangeDetectorRef en el constructor
-  ) {
+  constructor(private globalData: GlobalDataService, private router: Router, private userService: UserService, private ingredientService: IngredientService) {
     this.ingredientes = this.ingredientService.getIngredients();
   }
 
@@ -42,12 +35,8 @@ export class PantryComponent implements OnInit {
         this.userService.getUserById(this.userId).then(userObservable => {
           userObservable.subscribe(user => {
             this.user = user;
-            if (!this.ingredientList.length) { // Verifica si la lista ya está inicializada
-              this.initExistentesList();
-            }
-            if (!this.consumedIngredientsList.length) {
-              this.initConsumidosList();
-            }
+            this.initExistentesList();
+            this.initConsumidosList();
           });
         }).catch(error => {
           console.error(error);
@@ -57,113 +46,122 @@ export class PantryComponent implements OnInit {
   }
 
   initExistentesList() {
-    this.ingredientList = []; // Limpia la lista antes de inicializar
-    if (this.user.existentes) {
-      this.user.existentes.forEach(element => {
-        const [ingredientId, count] = element.split(':');
-        this.ingredientService.getIngredientById(ingredientId).subscribe(ingredient => {
-          const existingIngredientIndex = this.ingredientList.findIndex(item => item.ingredient.id === ingredientId);
-          if (existingIngredientIndex === -1) {
-            this.ingredientList.push({ ingredient, count: parseInt(count, 10) });
-          } else {
-            this.ingredientList[existingIngredientIndex].count += parseInt(count, 10);
+    this.existentesList = [];
+    if (this.user?.existentes) {
+      for (const item of this.user.existentes) {
+        const [id, count] = item.split(':');
+        this.ingredientService.getIngredientById(id).subscribe(ingredient => {
+          if (ingredient) {
+            this.existentesList.push({ ingredient, count: +count });
           }
-          this.ingredientList = [...this.ingredientList]; // Crear una copia de la lista para forzar la detección de cambios
-          this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
         });
-      });
+      }
     }
   }
 
   initConsumidosList() {
-    if (this.user.consumidos) {
-      this.user.consumidos.forEach(ingredientId => {
-        this.ingredientService.getIngredientById(ingredientId).subscribe(ingredient => {
-          if (!this.consumedIngredientsList.some(item => item.id === ingredientId)) {
-            this.consumedIngredientsList.push(ingredient);
+    this.consumidosList = [];
+    if (this.user?.consumidos) {
+      for (const item of this.user.consumidos) {
+        const [id, count] = item.split(':');
+        this.ingredientService.getIngredientById(id).subscribe(ingredient => {
+          if (ingredient) {
+            this.consumidosList.push({ ingredient, count: +count });
           }
-          this.consumedIngredientsList = [...this.consumedIngredientsList]; // Crear una copia de la lista para forzar la detección de cambios
-          this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
         });
-      });
+      }
     }
   }
 
   incrementCount(index: number) {
-    const item = this.ingredientList[index];
-    this.userService.addIngredientToUser(this.userId, item.ingredient.id!).then(success => {
-      if (success) {
-        item.count += 1;
-        this.ingredientList = [...this.ingredientList]; // Crear una copia de la lista para forzar la detección de cambios
-        this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
-      } else {
-        console.error("Failed to increment ingredient count.");
+    const item = this.existentesList[index];
+    if (item.ingredient.id) {
+      item.count++;
+      if (this.user && this.user.existentes) {
+        this.user.existentes[index] = `${item.ingredient.id}:${item.count}`;
+        this.userService.updateUser(this.userId, this.user).then(() => {
+          console.log("Updated user existentes");
+        }).catch(error => {
+          console.error(error);
+        });
       }
-    });
+    }
   }
 
   decrementCount(index: number) {
-    const item = this.ingredientList[index];
-    if (item.count > 1) {
-      this.userService.decrementIngredientFromUser(this.userId, item.ingredient.id!).then(success => {
-        if (success) {
-          item.count -= 1;
-          this.ingredientList = [...this.ingredientList]; // Crear una copia de la lista para forzar la detección de cambios
-          this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
-        } else {
-          console.error("Failed to decrement ingredient count.");
+    const item = this.existentesList[index];
+    if (item.ingredient.id) {
+      item.count--;
+      if (item.count > 0) {
+        if (this.user && this.user.existentes) {
+          this.user.existentes[index] = `${item.ingredient.id}:${item.count}`;
         }
-      });
-    } else {
-      this.userService.decrementIngredientFromUser(this.userId, item.ingredient.id!).then(success => {
-        if (success) {
-          this.ingredientList.splice(index, 1);
-          this.ingredientList = [...this.ingredientList]; // Crear una copia de la lista para forzar la detección de cambios
-          this.consumedIngredientsList.push(item.ingredient);
-          this.consumedIngredientsList = [...this.consumedIngredientsList]; // Crear una copia de la lista para forzar la detección de cambios
-          this.userService.addIngredientToConsumidos(this.userId, item.ingredient.id!).then(() => {
-            this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
-          });
-        } else {
-          console.error("Failed to decrement ingredient count.");
-        }
-      });
-    }
-  }
-
-  addToExistentes(index: number) {
-    const item = this.consumedIngredientsList[index];
-    this.userService.addIngredientToUser(this.userId, item.id!).then(success => {
-      if (success) {
-        this.consumedIngredientsList.splice(index, 1);
-        this.consumedIngredientsList = [...this.consumedIngredientsList]; // Crear una copia de la lista para forzar la detección de cambios
-        const existingItem = this.ingredientList.find(ingredientItem => ingredientItem.ingredient.id === item.id);
-        if (existingItem) {
-          existingItem.count += 1;
-        } else {
-          this.ingredientList.push({ ingredient: item, count: 1 });
-        }
-        this.ingredientList = [...this.ingredientList]; // Crear una copia de la lista para forzar la detección de cambios
-        this.userService.removeIngredientFromConsumidos(this.userId, item.id!).then(() => {
-          this.cdr.detectChanges(); // Forzar detección de cambios después de actualizar la lista
-        });
       } else {
-        console.error("Failed to add ingredient to existentes.");
+        this.existentesList.splice(index, 1);
+        if (this.user && this.user.existentes) {
+          this.user.existentes.splice(index, 1);
+          this.addToConsumidos(item.ingredient.id, 1);
+        }
       }
-    });
-  }
-
-  showExistentes() {
-    this.currentView = 'existentes';
-    if (!this.ingredientList.length) {
-      this.initExistentesList();
+      this.userService.updateUser(this.userId, this.user).then(() => {
+        console.log("Updated user existentes");
+      }).catch(error => {
+        console.error(error);
+      });
     }
   }
 
-  showConsumidos() {
-    this.currentView = 'consumidos';
-    if (!this.consumedIngredientsList.length) {
-      this.initConsumidosList();
+  addExistentes(index: number) {
+    const item = this.consumidosList[index];
+    if (item.ingredient.id) {
+      this.addToExistentes(item.ingredient.id, 1);
+      this.consumidosList.splice(index, 1);
+      if (this.user && this.user.consumidos) {
+        this.user.consumidos.splice(index, 1);
+        this.userService.updateUser(this.userId, this.user).then(() => {
+          console.log("Updated user consumidos");
+        }).catch(error => {
+          console.error(error);
+        });
+      }
     }
+  }
+
+  addToExistentes(ingredientId: string, count: number) {
+    if (this.user?.existentes) {
+      let found = false;
+      for (let i = 0; i < this.user.existentes.length; i++) {
+        const [id, currentCount] = this.user.existentes[i].split(':');
+        if (id === ingredientId) {
+          this.user.existentes[i] = `${id}:${+currentCount + count}`;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        this.user.existentes.push(`${ingredientId}:${count}`);
+      }
+    }
+  }
+
+  addToConsumidos(ingredientId: string, count: number) {
+    if (this.user?.consumidos) {
+      let found = false;
+      for (let i = 0; i < this.user.consumidos.length; i++) {
+        const [id, currentCount] = this.user.consumidos[i].split(':');
+        if (id === ingredientId) {
+          this.user.consumidos[i] = `${id}:${+currentCount + count}`;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        this.user.consumidos.push(`${ingredientId}:${count}`);
+      }
+    }
+  }
+
+  switchView(view: string) {
+    this.currentView = view;
   }
 }
