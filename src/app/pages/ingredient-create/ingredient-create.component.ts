@@ -26,7 +26,7 @@ export class IngredientCreateComponent {
   errorMessage: string | null = null;
 
   namePattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]{3,}$/;
-  descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9]{3,}$/;
+  descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9.,()/]{3,}$/;
 
   constructor(private ingredientService: IngredientService, private router: Router, private fb: FormBuilder, private storage: Storage) {
     this.crearFormulario();

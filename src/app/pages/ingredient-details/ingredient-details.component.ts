@@ -22,7 +22,7 @@ export class IngredientDetailsComponent implements OnInit {
   editable: boolean = false;
   initialIngredientData: Ingredient = {};
 
-  descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9]{3,}$/;
+  descriptionPattern = /^(?=.*[A-Za-zÁáÉéÍíÓóÚúÜüÑñ])[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s0-9.,()/]{3,}$/;
 
   isLoggedIn: boolean = false;
   userRole: string = 'null';
