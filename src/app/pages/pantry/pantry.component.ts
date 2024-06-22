@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Ingredient } from 'src/app/interfaces/ingredient';
 import { IngredientService } from 'src/app/services/ingredient.service';
 import { UserService } from 'src/app/services/user.service';
+import { RecipeService } from 'src/app/services/recipe.service';
 import { User } from 'src/app/interfaces/user';
+import { Recipe } from 'src/app/interfaces/recipe';
 import { Observable } from 'rxjs';
 import { GlobalDataService } from 'src/app/services/global-data.service';
 import { NavigationExtras, Router } from '@angular/router';
@@ -20,12 +22,13 @@ export class PantryComponent implements OnInit {
   user: User = {};
   existentesList: { ingredient: Ingredient, count: number }[] = [];
   consumidosList: { ingredient: Ingredient, count: number }[] = [];
+  recommendedRecipes: Recipe[] = [];
   currentView: string = 'existentes';
   confirmationMessage: string = '';
 
   ingredientes: Observable<Ingredient[]>;
 
-  constructor(private globalData: GlobalDataService, private router: Router, private userService: UserService, private ingredientService: IngredientService) {
+  constructor(private globalData: GlobalDataService, private router: Router, private userService: UserService, private ingredientService: IngredientService, private recipeService: RecipeService) {
     this.ingredientes = this.ingredientService.getIngredients();
   }
 
@@ -170,15 +173,27 @@ export class PantryComponent implements OnInit {
 
   switchView(view: string) {
     this.currentView = view;
+    if (view === 'recomendaciones') {
+      this.loadRecommendedRecipes();
+    }
   }
 
-  goDetails(id: string) {
+  goIngredientDetails(id: string) {
     const navExtras: NavigationExtras = {
       queryParams: {
         id: id
       }
     };
     this.router.navigate(['ingredient-details'], navExtras);
+  }
+
+  goRecipeDetails(id: string) {
+    const navExtras: NavigationExtras = {
+      queryParams: {
+        id: id
+      }
+    };
+    this.router.navigate(['recipe-details'], navExtras);
   }
 
   openConfirmationModal() {
@@ -190,5 +205,16 @@ export class PantryComponent implements OnInit {
 
   closeConfirmationModal() {
     $('#confirmationModal').modal('hide');
+  }
+
+  loadRecommendedRecipes() {
+    const ingredientNames = this.existentesList.map(item => this.normalizeAndExtractIngredient(item.ingredient.nombre!));
+    this.recipeService.getRecipesByIngredients(ingredientNames).subscribe(recipes => {
+      this.recommendedRecipes = recipes;
+    });
+  }
+
+  private normalizeAndExtractIngredient(ingredient: string): string {
+    return ingredient.replace(/[\d.,]/g, '').replace(/\b(de|ml|g|kg|l|oz|tbsp|tsp)\b/gi, '').trim().toLowerCase();
   }
 }

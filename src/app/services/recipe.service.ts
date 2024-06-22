@@ -117,4 +117,38 @@ export class RecipeService {
     return array;
   }
 
+  getRecipesByIngredients(ingredientNames: string[]): Observable<Recipe[]> {
+    return this.af.collection<Recipe>('recetas').snapshotChanges().pipe(
+      map(actions => {
+        const recipes = actions.map(a => {
+          const data = a.payload.doc.data() as Recipe;
+          const id = a.payload.doc.id;
+          return { id, ...data };
+        });
+        return recipes.filter(recipe => {
+          const recipeIngredients = recipe.ingredientes?.toLowerCase() || '';
+          return ingredientNames.some(ingredient => {
+            return this.isIngredientInRecipe(ingredient, recipeIngredients);
+          });
+        });
+      })
+    );
+  }
+
+  private isIngredientInRecipe(ingredient: string, recipeIngredients: string): boolean {
+    const regex = new RegExp(`\\b${ingredient}s?\\b`, 'i'); // Permite plurales
+    if (regex.test(recipeIngredients)) {
+      return true;
+    }
+    const ingredientVariants = this.generateIngredientVariants(ingredient);
+    return ingredientVariants.some(variant => recipeIngredients.includes(variant));
+  }
+
+  private generateIngredientVariants(ingredient: string): string[] {
+    // Generar variantes como plurales, errores tipográficos comunes, etc.
+    const variants = [ingredient, ingredient + 's'];
+    // Aquí se pueden añadir más variantes si es necesario
+    return variants;
+  }
+
 }
