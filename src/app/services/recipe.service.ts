@@ -136,7 +136,7 @@ export class RecipeService {
   }
 
   private isIngredientInRecipe(ingredient: string, recipeIngredients: string): boolean {
-    const regex = new RegExp(`\\b${ingredient}s?\\b`, 'i'); // Permite plurales
+    const regex = new RegExp(`\\b${ingredient}s?\\b`, 'i');
     if (regex.test(recipeIngredients)) {
       return true;
     }
@@ -145,9 +145,7 @@ export class RecipeService {
   }
 
   private generateIngredientVariants(ingredient: string): string[] {
-    // Generar variantes como plurales, errores tipográficos comunes, etc.
     const variants = [ingredient, ingredient + 's'];
-    // Aquí se pueden añadir más variantes si es necesario
     return variants;
   }
 
