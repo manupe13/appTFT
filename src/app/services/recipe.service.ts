@@ -24,7 +24,7 @@ export class RecipeService {
     let query = this.af.collection<Recipe>('recetas', ref => {
       let q = ref.orderBy('nombre');
       if (filtro && filtro !== 'Todos') {
-        q = ref.where('filtro', '==', filtro).orderBy('nombre');
+        q = ref.where('filtro', '==', filtro);
       }
       return q;
     });
