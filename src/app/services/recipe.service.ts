@@ -136,7 +136,7 @@ export class RecipeService {
   }
 
   private isIngredientInRecipe(ingredient: string, recipeIngredients: string): boolean {
-    const regex = new RegExp(`\\b${ingredient}s?\\b`, 'i');
+    const regex = new RegExp(`\\b${ingredient.replace(/\s+/g, '\\s*')}s?\\b`, 'i');
     if (regex.test(recipeIngredients)) {
       return true;
     }
@@ -146,6 +146,11 @@ export class RecipeService {
 
   private generateIngredientVariants(ingredient: string): string[] {
     const variants = [ingredient, ingredient + 's'];
+    const words = ingredient.split(' ');
+    if (words.length > 1) {
+      const combined = words.join('');
+      variants.push(combined, combined + 's');
+    }
     return variants;
   }
 

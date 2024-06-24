@@ -215,6 +215,7 @@ export class PantryComponent implements OnInit {
   }
 
   private normalizeAndExtractIngredient(ingredient: string): string {
-    return ingredient.replace(/[\d.,]/g, '').replace(/\b(de|ml|g|kg|l|oz|tbsp|tsp)\b/gi, '').trim().toLowerCase();
+    return ingredient.replace(/[\d.,]/g, '').replace(/\b(ml|g|kg|l|oz|tbsp|tsp)\b/gi, '').trim().toLowerCase();
   }
+
 }
