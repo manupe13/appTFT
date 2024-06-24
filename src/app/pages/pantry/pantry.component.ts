@@ -25,6 +25,7 @@ export class PantryComponent implements OnInit {
   recommendedRecipes: Recipe[] = [];
   currentView: string = 'existentes';
   confirmationMessage: string = '';
+  noRecommendations: boolean = false;
 
   ingredientes: Observable<Ingredient[]>;
 
@@ -211,6 +212,7 @@ export class PantryComponent implements OnInit {
     const ingredientNames = this.existentesList.map(item => this.normalizeAndExtractIngredient(item.ingredient.nombre!));
     this.recipeService.getRecipesByIngredients(ingredientNames).subscribe(recipes => {
       this.recommendedRecipes = recipes;
+      this.noRecommendations = this.recommendedRecipes.length === 0;
     });
   }
 
